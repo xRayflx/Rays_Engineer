@@ -11,21 +11,21 @@ automatically and lets you compare laps against a reference lap by track distanc
 
 ## Features
 
-| | Status |
-|---|---|
-| Finds LMU's telemetry folder automatically (all Steam libraries, Documents) — changeable in Settings | ✅ |
-| Watches the folder and indexes new recordings once LMU has finished writing them | ✅ |
-| Optional archive of every recording in the app's data folder (survives deletion in LMU) | ✅ |
-| Turn LMU's *Automatically Record Telemetry* on/off from the app | ✅ |
-| Recording presets — writes LMU's `config.json` (channel frequencies) | ✅ |
-| Session metadata, laps (official LMU lap times, validity), sector times | ✅ |
-| Reference lap per track + car (fastest valid lap, can be pinned per lap) | ✅ |
-| Analysis: delta, speed, throttle, brake, steering and gear vs. a reference lap — by distance, synced scrubbing and zoom | ✅ |
-| Track map with lap markers, corner table (min speed, time gained/lost per corner) | ✅ |
-| Any other recorded channel (tyre/brake temperatures, pressures, fuel, suspension, …) as an extra synced chart | ✅ |
-| Export / import sessions (`.rses`) and single laps (`.rlap`), import also by drag & drop | ✅ |
-| Notes and tags per session, filter in the session list | ✅ |
-| Delete sessions (LMU's recording goes to the Recycle Bin) | ✅ |
+|                                                                                                                         | Status |
+| ----------------------------------------------------------------------------------------------------------------------- | ------ |
+| Finds LMU's telemetry folder automatically (all Steam libraries, Documents) — changeable in Settings                    | ✅     |
+| Watches the folder and indexes new recordings once LMU has finished writing them                                        | ✅     |
+| Optional archive of every recording in the app's data folder (survives deletion in LMU)                                 | ✅     |
+| Turn LMU's _Automatically Record Telemetry_ on/off from the app                                                         | ✅     |
+| Recording presets — writes LMU's `config.json` (channel frequencies)                                                    | ✅     |
+| Session metadata, laps (official LMU lap times, validity), sector times                                                 | ✅     |
+| Reference lap per track + car (fastest valid lap, can be pinned per lap)                                                | ✅     |
+| Analysis: delta, speed, throttle, brake, steering and gear vs. a reference lap — by distance, synced scrubbing and zoom | ✅     |
+| Track map with lap markers, corner table (min speed, time gained/lost per corner)                                       | ✅     |
+| Any other recorded channel (tyre/brake temperatures, pressures, fuel, suspension, …) as an extra synced chart           | ✅     |
+| Export / import sessions (`.rses`) and single laps (`.rlap`), import also by drag & drop                                | ✅     |
+| Notes and tags per session, filter in the session list                                                                  | ✅     |
+| Delete sessions (LMU's recording goes to the Recycle Bin)                                                               | ✅     |
 
 No account, no cloud, no network access: the app blocks every outgoing request.
 
@@ -34,7 +34,7 @@ No account, no cloud, no network access: the app blocks every outgoing request.
 1. Download `Rays Engineer Setup <version>.exe` from the latest GitHub **Release** and run it.
 2. The installer is not code-signed yet, so Windows SmartScreen warns:
    **More info → Run anyway**.
-3. In LMU, *Automatically Record Telemetry* must be on — the app shows its state on the
+3. In LMU, _Automatically Record Telemetry_ must be on — the app shows its state on the
    **Recording** page and can switch it (close LMU first).
 
 ## Development
@@ -70,24 +70,24 @@ lap summaries, reference laps, notes/tags and settings.
 
 ### CI
 
-| Workflow | Trigger | What it does |
-|---|---|---|
-| `tests.yml` | PR to `main` | on Windows: `npm ci` → lint → tests → build → NSIS installer → smoke test of the packaged `.exe` |
-| `pr-comment.yml` | after `Tests` | posts the result as a single, updated comment on the PR |
-| `pr-rules.yml` | PR to `main` | `issue-link`: description references an open issue (`Closes #42`); `cla`: CLA box ticked (not for the maintainer/bots) |
-| `release.yml` | creating branch `release/x.y.z` | builds + smoke-tests the installer and publishes GitHub release `vx.y.z` (`-beta.1` etc. → pre-release) |
+| Workflow         | Trigger                         | What it does                                                                                                           |
+| ---------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `tests.yml`      | PR to `main`                    | on Windows: `npm ci` → lint → tests → build → NSIS installer → smoke test of the packaged `.exe`                       |
+| `pr-comment.yml` | after `Tests`                   | posts the result as a single, updated comment on the PR                                                                |
+| `pr-rules.yml`   | PR to `main`                    | `issue-link`: description references an open issue (`Closes #42`); `cla`: CLA box ticked (not for the maintainer/bots) |
+| `release.yml`    | creating branch `release/x.y.z` | builds + smoke-tests the installer and publishes GitHub release `vx.y.z` (`-beta.1` etc. → pre-release)                |
 
 `main` is only changed through pull requests; to release, create `release/<version>` from `main`.
 
 ## Repository layout
 
-| Path | |
-|---|---|
-| `Rays_Engineer.Desktop/` | **the desktop app** (Electron, electron-vite, React, TypeScript) |
-| `samples/` | real LMU recordings and settings, used as test fixtures and for `docs/SCHEMA.md` |
-| `docs/SCHEMA.md` | LMU file formats as verified against real files |
-| `docs/LEGACY.md` | where the removed web platform lives in git history |
-| `.github/workflows/` | CI and releases |
+| Path                     |                                                                                  |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| `Rays_Engineer.Desktop/` | **the desktop app** (Electron, electron-vite, React, TypeScript)                 |
+| `samples/`               | real LMU recordings and settings, used as test fixtures and for `docs/SCHEMA.md` |
+| `docs/SCHEMA.md`         | LMU file formats as verified against real files                                  |
+| `docs/LEGACY.md`         | where the removed web platform lives in git history                              |
+| `.github/workflows/`     | CI and releases                                                                  |
 
 ## Contributing
 
