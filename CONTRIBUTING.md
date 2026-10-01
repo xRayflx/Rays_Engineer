@@ -4,9 +4,8 @@ Thanks for wanting to contribute to Rays Engineer! This is how it works:
 
 1. **Issue first:** open an issue (or find an existing one) before writing code.
 2. **Fork** this repository.
-3. **Create a branch** in your fork. Recommended naming:
-   `fix/<issue-nr>-<short-description>` or `feat/<issue-nr>-<short-description>`,
-   e.g. `fix/42-lap-export`.
+3. **Create a branch** in your fork, named `<type>/<issue-nr>-<short-description>`,
+   e.g. `fix/42-lap-export` (see [Branch names](#branch-names)).
 4. **Open a pull request** against `main` and write `Closes #<issue-nr>` in the description.
 5. **Accept the CLA:** read the [CLA](CLA.md) and tick the box "I agree to the CLA" in the
    pull request. This grants the maintainer unrestricted rights to use your contribution;
@@ -16,6 +15,20 @@ Thanks for wanting to contribute to Rays Engineer! This is how it works:
 
 Pull requests without a reference to an open issue or without CLA agreement fail automatically.
 Checks on pull requests from first-time contributors only start after the maintainer approves them.
+
+## Branch names
+
+`<type>/<issue-nr>-<short-description>` — the prefix shows what kind of change it is:
+
+| Prefix   | For                                                              | Example                      |
+| -------- | ---------------------------------------------------------------- | ---------------------------- |
+| `feat/`  | a new feature                                                    | `feat/17-tyre-temp-chart`    |
+| `fix/`   | a bug fix                                                        | `fix/42-lap-export`          |
+| `chore/` | maintenance without effect on the app: CI, dependencies, cleanup | `chore/1-ci-test`            |
+| `docs/`  | documentation only                                               | `docs/23-schema-wheel-speed` |
+
+This is a convention, not enforced by the checks. The only reserved prefix is `release/`:
+release branches are created by the maintainer and publish a GitHub release.
 
 ## Development
 
