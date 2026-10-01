@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme tokens as RGB channels (Tailwind adds alpha). Pit Wall is the default; Settings › Appearance switches data-theme. */
+@layer base {
+    :root,
+    :root[data-theme='pitwall'] {
+        color-scheme: dark;
+        --c-canvas: 11 13 16; --c-panel: 16 19 23; --c-well: 15 18 21; --c-card: 17 21 26; --c-field: 19 22 27;
+        --c-raised: 21 25 31; --c-hover: 23 27 33; --c-active: 28 33 41; --c-selected: 37 42 51;
+        --c-line: 28 32 39; --c-row: 24 28 34; --c-edge: 32 37 44; --c-edge-strong: 42 48 58; --c-track: 58 65 76;
+        --c-fg-strong: 244 245 247; --c-fg: 232 234 237; --c-fg-soft: 213 217 223; --c-fg-2: 181 188 198;
+        --c-fg-muted: 154 162 173; --c-fg-subtle: 133 141 153; --c-fg-faint: 107 115 128; --c-fg-ghost: 94 102 114;
+        --c-accent: 245 165 36; --c-accent-hover: 255 196 94; --c-on-accent: 21 17 10; --c-accent-tint: 25 23 16;
+        --c-best: 201 176 255; --c-gain: 56 189 248; --c-gain-fg: 125 211 252; --c-loss: 251 146 60; --c-loss-fg: 253 186 116;
+        --c-ok: 74 222 128; --c-ok-fg: 134 220 166; --c-ok-bg: 20 38 27; --c-warn-fg: 252 211 77; --c-warn-bg: 59 47 18;
+        --c-danger-fg: 255 138 128; --c-danger-bg: 44 26 28;
+        --c-race-bg: 42 33 19; --c-race-fg: 245 198 107; --c-quali-bg: 36 27 51; --c-quali-fg: 201 176 255;
+        --c-hy-bg: 44 26 28; --c-hy-fg: 255 154 146; --c-gt3-bg: 22 39 29; --c-gt3-fg: 134 220 166; --c-p2-bg: 22 35 58; --c-p2-fg: 147 197 253;
+    }
+
+    :root[data-theme='midnight'] {
+        color-scheme: dark;
+        --c-canvas: 7 10 18; --c-panel: 11 16 32; --c-well: 12 18 34; --c-card: 15 22 40; --c-field: 17 26 45;
+        --c-raised: 20 29 51; --c-hover: 22 32 58; --c-active: 27 39 66; --c-selected: 36 49 79;
+        --c-line: 26 35 56; --c-row: 21 30 51; --c-edge: 30 41 66; --c-edge-strong: 41 54 90; --c-track: 58 72 104;
+        --c-fg-strong: 245 247 251; --c-fg: 232 236 244; --c-fg-soft: 214 220 232; --c-fg-2: 184 195 214;
+        --c-fg-muted: 158 171 196; --c-fg-subtle: 135 150 179; --c-fg-faint: 110 124 156; --c-fg-ghost: 94 108 140;
+        --c-accent: 212 255 58; --c-accent-hover: 228 255 122; --c-on-accent: 11 16 32; --c-accent-tint: 22 31 20;
+        --c-best: 201 176 255; --c-gain: 56 189 248; --c-gain-fg: 125 211 252; --c-loss: 251 146 60; --c-loss-fg: 253 186 116;
+        --c-ok: 74 222 128; --c-ok-fg: 134 220 166; --c-ok-bg: 20 38 27; --c-warn-fg: 252 211 77; --c-warn-bg: 59 47 18;
+        --c-danger-fg: 255 138 128; --c-danger-bg: 44 26 28;
+        --c-race-bg: 42 33 19; --c-race-fg: 245 198 107; --c-quali-bg: 36 27 51; --c-quali-fg: 201 176 255;
+        --c-hy-bg: 44 26 28; --c-hy-fg: 255 154 146; --c-gt3-bg: 22 39 29; --c-gt3-fg: 134 220 166; --c-p2-bg: 22 35 58; --c-p2-fg: 147 197 253;
+    }
+
+    :root[data-theme='paddock'] {
+        color-scheme: light;
+        --c-canvas: 238 240 243; --c-panel: 255 255 255; --c-well: 255 255 255; --c-card: 255 255 255; --c-field: 255 255 255;
+        --c-raised: 255 255 255; --c-hover: 241 243 246; --c-active: 233 236 241; --c-selected: 227 230 235;
+        --c-line: 228 231 236; --c-row: 236 238 242; --c-edge: 221 225 231; --c-edge-strong: 205 210 218; --c-track: 154 161 172;
+        --c-fg-strong: 11 13 16; --c-fg: 20 23 28; --c-fg-soft: 37 42 50; --c-fg-2: 63 69 80;
+        --c-fg-muted: 79 86 98; --c-fg-subtle: 95 102 113; --c-fg-faint: 106 113 124; --c-fg-ghost: 122 129 140;
+        --c-accent: 215 38 30; --c-accent-hover: 168 28 21; --c-on-accent: 255 255 255; --c-accent-tint: 255 241 240;
+        --c-best: 109 40 217; --c-gain: 2 132 199; --c-gain-fg: 3 105 161; --c-loss: 234 88 12; --c-loss-fg: 194 65 12;
+        --c-ok: 22 163 74; --c-ok-fg: 22 101 52; --c-ok-bg: 220 245 228; --c-warn-fg: 146 64 14; --c-warn-bg: 254 243 199;
+        --c-danger-fg: 180 35 27; --c-danger-bg: 253 232 231;
+        --c-race-bg: 253 240 213; --c-race-fg: 138 90 0; --c-quali-bg: 239 231 255; --c-quali-fg: 109 40 217;
+        --c-hy-bg: 253 232 231; --c-hy-fg: 180 35 27; --c-gt3-bg: 220 245 228; --c-gt3-fg: 22 101 52; --c-p2-bg: 224 237 255; --c-p2-fg: 29 78 216;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html, body, #root {
+        height: 100%;
+    }
+
+    body {
+        @apply bg-canvas text-fg font-sans text-sm;
+        -webkit-font-smoothing: antialiased;
+        user-select: none;
+    }
+
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgb(var(--c-canvas));
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgb(var(--c-edge-strong));
+        border-radius: 4px;
+    }
+
+    .u-select {
+        background: rgb(var(--c-fg) / 0.08);
+    }
+}
+
+@layer components {
+    /** Tabular numbers for times, deltas and other values that line up in columns. */
+    .num {
+        @apply font-mono tabular-nums;
+    }
+
+    .page-title {
+        @apply font-display text-[32px] font-semibold leading-none tracking-tight text-fg-strong;
+        font-stretch: 118%;
+    }
+
+    .section-title {
+        @apply font-display text-[15px] font-semibold uppercase tracking-wide text-fg;
+        font-stretch: 118%;
+    }
+
+    /** Small upper-case column / label caption. */
+    .label {
+        @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-subtle;
+    }
+
+    .card {
+        @apply bg-card rounded-xl border border-edge p-5;
+    }
+
+    .field {
+        @apply h-10 rounded-lg border border-edge-strong bg-field px-3 text-sm text-fg placeholder:text-fg-faint focus:outline-none focus:ring-2 focus:ring-accent/60;
+    }
+
+    .btn {
+        @apply inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-primary {
+        @apply btn bg-accent text-on-accent font-semibold hover:bg-accent-hover;
+    }
+
+    .btn-ghost {
+        @apply btn border border-edge-strong bg-field text-fg-soft hover:bg-hover;
+    }
+
+    .btn-icon {
+        @apply inline-flex h-8 w-8 items-center justify-center rounded-md text-fg-faint transition-colors hover:bg-active hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60;
+    }
+
+    /** Segmented control: wrap buttons in .segmented, mark the active one with .segment-on. */
+    .segmented {
+        @apply flex gap-0.5 rounded-lg border border-edge bg-field p-1;
+    }
+
+    .segment {
+        @apply h-8 rounded-md px-3 text-[13px] font-medium capitalize text-fg-muted transition-colors hover:text-fg;
+    }
+
+    .segment-on {
+        @apply bg-selected text-fg-strong;
+    }
+
+    .chip {
+        @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    }
+
+    .switch {
+        @apply relative h-[30px] w-[52px] shrink-0 rounded-full bg-edge-strong transition-colors disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60;
+    }
+
+    .switch[aria-checked='true'] {
+        @apply bg-accent;
+    }
+
+    .switch > span {
+        @apply absolute left-[3px] top-[3px] h-6 w-6 rounded-full bg-fg-muted transition-all;
+    }
+
+    .switch[aria-checked='true'] > span {
+        @apply left-[25px] bg-on-accent;
+    }
+}

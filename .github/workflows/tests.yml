@@ -1,0 +1,99 @@
+name: Tests
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: Rays_Engineer.Desktop
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Rays_Engineer.Desktop/package-lock.json
+
+      # Runs without failing the job directly, so the result can still be saved for
+      # pr-comment.yml; after the first failing step the remaining ones are skipped.
+      # The last step turns the check red.
+      - name: Install, lint, test, build, package, smoke test
+        id: checks
+        run: |
+          set -o pipefail
+          log="$RUNNER_TEMP/ci-output.txt"; : > "$log"
+          steps="$RUNNER_TEMP/ci-steps.md"; : > "$steps"
+          failed=""
+          step() {
+            local name="$1"; shift
+            if [ -n "$failed" ]; then echo "| $name | ⏭️ skipped |" >> "$steps"; return; fi
+            echo "::group::$name"
+            echo "===== $name =====" >> "$log"
+            if "$@" 2>&1 | tee -a "$log"; then
+              echo "| $name | ✅ |" >> "$steps"
+            else
+              echo "| $name | ❌ |" >> "$steps"
+              failed="$name"
+            fi
+            echo "::endgroup::"
+          }
+          # postinstall rebuilds native modules (better-sqlite3) for Electron on win32.
+          step "Install" npm ci
+          step "Lint" npm run lint
+          step "Unit tests" npm test
+          step "Build" npm run build
+          step "Package installer" npx electron-builder --win --x64 --publish never
+          step "Smoke test" node scripts/smoke-test.cjs "release/win-unpacked/Rays Engineer.exe"
+          if [ -z "$failed" ]; then echo "ok=1" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Save result for the PR comment
+        if: always()
+        working-directory: .
+        run: |
+          mkdir -p pr
+          echo "${{ github.event.pull_request.number }}" > pr/number
+          {
+            if [ "${{ steps.checks.outputs.ok }}" = "1" ]; then
+              echo "### ✅ Checks passed"
+            else
+              echo "### ❌ Checks failed"
+            fi
+            echo
+            echo "| Step | Result |"
+            echo "|---|---|"
+            cat "$RUNNER_TEMP/ci-steps.md" 2>/dev/null
+            echo
+            echo "<details><summary>Output (last 60 lines)</summary>"
+            echo; echo '```'; tail -n 60 "$RUNNER_TEMP/ci-output.txt" 2>/dev/null; echo '```'
+            echo "</details>"
+          } > pr/comment.md
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr-result
+          path: pr/
+
+      - uses: actions/upload-artifact@v4
+        if: steps.checks.outputs.ok == '1'
+        with:
+          name: rays-engineer-setup
+          path: Rays_Engineer.Desktop/release/*.exe
+          retention-days: 7
+
+      - name: Set check status
+        if: always() && steps.checks.outputs.ok != '1'
+        run: exit 1

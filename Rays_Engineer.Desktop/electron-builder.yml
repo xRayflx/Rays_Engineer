@@ -1,0 +1,23 @@
+appId: com.raysengineer.desktop
+productName: Rays Engineer
+directories:
+  output: release
+  buildResources: build
+files:
+  - out/**
+  - package.json
+# Native modules (better-sqlite3, @duckdb/node-api) must live outside the asar
+# archive once they are added in later phases.
+asarUnpack:
+  - '**/*.node'
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  shortcutName: Rays Engineer
+publish: null
