@@ -4,6 +4,7 @@
  */
 import type { AnalysisResult, CornerInfo, LapAnalysis } from '../shared/analysis'
 import { pathCurvature } from '../shared/balance'
+import { parseSetupJson } from '../shared/setup'
 import type { LapRow, SessionRow } from '../shared/types'
 import { detectCorners } from './analysis/corners'
 import type { LapTrace } from './analysis/lap-trace'
@@ -22,6 +23,8 @@ export interface LapSource {
     lap: LapRow
     session: SessionRow
     path: string
+    /** The session's stored `CarSetup` JSON, if known. */
+    setupJson?: string | null
 }
 
 class Lru<V> {
@@ -185,7 +188,9 @@ export async function analyseLaps(sources: LapSource[], referenceLapId: number, 
             extra,
         })
     }
-    return { trackLengthM, referenceLapId: ordered[0]!.lap.id, laps, channels: cores[0]!.channels }
+    const setups: AnalysisResult['setups'] = {}
+    for (const s of ordered) if (!(s.session.id in setups)) setups[s.session.id] = parseSetupJson(s.setupJson ?? null)
+    return { trackLengthM, referenceLapId: ordered[0]!.lap.id, laps, setups, channels: cores[0]!.channels }
 }
 
 /** Distance of the highest path curvature between two distances; the fallback if there is none (no GPS). */

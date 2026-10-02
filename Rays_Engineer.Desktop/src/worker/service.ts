@@ -15,6 +15,7 @@ import {
     getLap,
     getReferenceForSession,
     getSession,
+    getSessionSetupJson,
     getSessionManifest,
     getTraceCache,
     getSessionNote,
@@ -244,7 +245,7 @@ export class WorkerService {
             const session = getSession(this.db, lap.sessionId)!
             const path = this.recordingPath(session)
             if (!path) throw new Error('Recording file is no longer available')
-            return { lap, session, path }
+            return { lap, session, path, setupJson: getSessionSetupJson(this.db, session.id) }
         })
         const cache: TraceCache = {
             get: lapId => getTraceCache(this.db, lapId, TRACE_CACHE_VERSION),

@@ -191,6 +191,12 @@ export function getSession(db: Db, id: number): SessionRow | null {
     return r ? toSessionRow(r) : null
 }
 
+/** The raw `CarSetup` JSON the reader stored for a session; null if none. */
+export function getSessionSetupJson(db: Db, id: number): string | null {
+    const r = db.prepare('SELECT setup_json FROM sessions WHERE id = ?').get(id) as { setup_json: string | null } | undefined
+    return r?.setup_json ?? null
+}
+
 // ── Parsing results ──────────────────────────────────────────────────────────
 
 /** Sessions the reader still has to process (new, failed with an older reader, or parsed by an older reader). */

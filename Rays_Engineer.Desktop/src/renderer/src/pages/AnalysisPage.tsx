@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 import Balance from '../components/analysis/Balance'
 import Consistency from '../components/analysis/Consistency'
 import CornerMap from '../components/analysis/CornerMap'
+import Setup from '../components/analysis/Setup'
 import TraceChart, { type TraceSeries } from '../components/analysis/TraceChart'
 import TrackMap from '../components/analysis/TrackMap'
 import EmptyState from '../components/EmptyState'
@@ -17,7 +18,7 @@ import { formatDateTime } from '../lib/format'
 import { useChartPalette } from '../lib/theme'
 import { callWorker } from '../lib/worker'
 
-type Tab = 'traces' | 'corners' | 'corner map' | 'consistency' | 'balance'
+type Tab = 'traces' | 'corners' | 'corner map' | 'consistency' | 'balance' | 'setup'
 
 export default function AnalysisPage() {
     const lapIds = useAnalysisStore(s => s.lapIds)
@@ -69,7 +70,7 @@ export default function AnalysisPage() {
                     <h1 className="page-title text-[28px]">{result.laps[0]!.track}</h1>
                     <span className="text-[13px] text-fg-muted">{result.laps[0]!.car}</span>
                     <div role="tablist" aria-label="Analysis view" className="segmented ml-auto">
-                        {(['traces', 'corners', 'corner map', 'consistency', 'balance'] as const).map(t => (
+                        {(['traces', 'corners', 'corner map', 'consistency', 'balance', 'setup'] as const).map(t => (
                             <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={clsx('segment', tab === t && 'segment-on')}>
                                 {t}
                             </button>
@@ -85,6 +86,7 @@ export default function AnalysisPage() {
             {tab === 'corner map' && <CornerMap result={result} colors={colors} />}
             {tab === 'consistency' && <Consistency result={result} />}
             {tab === 'balance' && <Balance result={result} colors={colors} />}
+            {tab === 'setup' && <Setup result={result} colors={colors} />}
         </div>
     )
 }

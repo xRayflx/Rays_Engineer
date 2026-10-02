@@ -1,4 +1,5 @@
 /** Analysis payloads worker → renderer. Arrays are typed so they travel as binary. */
+import type { SetupEntry } from './setup'
 
 export interface CornerInfo {
     number: number
@@ -72,6 +73,8 @@ export interface AnalysisResult {
     trackLengthM: number | null
     referenceLapId: number
     laps: LapAnalysis[]
+    /** Car setup per session of the compared laps (LapAnalysis.sessionId); null if the recording has none. */
+    setups: Record<number, SetupEntry[] | null>
     /** Continuous channels recorded in the reference lap's session, for the "+ Channel" picker. */
     channels: ChannelOption[]
 }
