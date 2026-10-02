@@ -1,9 +1,13 @@
 /** Analysis payloads worker → renderer. Arrays are typed so they travel as binary. */
+import type { SetupEntry } from './setup'
 
 export interface CornerInfo {
     number: number
     entryM: number
+    /** Slowest point of the corner. */
     apexM: number
+    /** Geometric apex: the tightest point of this lap's GPS line between entry and exit. */
+    lineApexM: number
     exitM: number
     minSpeedKmh: number
     entrySpeedKmh: number
@@ -38,6 +42,8 @@ export interface LapAnalysis {
     sessionId: number
     lapNumber: number
     lapTimeMs: number | null
+    /** Sector 1–3 times from LMU's own timing; null = not recorded or invalid sector. */
+    sectorMs: [number | null, number | null, number | null]
     isValid: boolean
     track: string | null
     car: string | null
@@ -67,6 +73,8 @@ export interface AnalysisResult {
     trackLengthM: number | null
     referenceLapId: number
     laps: LapAnalysis[]
+    /** Car setup per session of the compared laps (LapAnalysis.sessionId); null if the recording has none. */
+    setups: Record<number, SetupEntry[] | null>
     /** Continuous channels recorded in the reference lap's session, for the "+ Channel" picker. */
     channels: ChannelOption[]
 }

@@ -3,6 +3,8 @@
  * distance grid and derives delta time, track map and corners.
  */
 import type { AnalysisResult, CornerInfo, LapAnalysis } from '../shared/analysis'
+import { pathCurvature } from '../shared/balance'
+import { parseSetupJson } from '../shared/setup'
 import type { LapRow, SessionRow } from '../shared/types'
 import { detectCorners } from './analysis/corners'
 import type { LapTrace } from './analysis/lap-trace'
@@ -14,11 +16,15 @@ export const STEP_M = 2
 const TRACE_HZ = 50     // inputs are recorded at up to 50–100 Hz
 const ANALYSIS_HZ = 10  // corner detection is tuned for 10 Hz
 const CACHE_SIZE = 12
+/** The line apex is searched this far around the slowest point, so a long corner's other bends don't win. */
+const LINE_APEX_RANGE_M = 100
 
 export interface LapSource {
     lap: LapRow
     session: SessionRow
     path: string
+    /** The session's stored `CarSetup` JSON, if known. */
+    setupJson?: string | null
 }
 
 class Lru<V> {
@@ -136,11 +142,15 @@ export async function analyseLaps(sources: LapSource[], referenceLapId: number, 
 
         const L = c.trackLengthM ?? 0
         const toM = (norPos: number) => norPos * L
+        const mapX = Float32Array.from(c.arrays.gpsLon, v => v * 111_320 * cosLat)
+        const mapY = Float32Array.from(c.arrays.gpsLat, v => v * 110_540)
+        const curvature = pathCurvature(mapX, mapY, STEP_M)
         laps.push({
             lapId: src.lap.id,
             sessionId: src.session.id,
             lapNumber: src.lap.lapNumber,
             lapTimeMs: src.lap.lapTimeMs,
+            sectorMs: [src.lap.sector1Ms, src.lap.sector2Ms, src.lap.sector3Ms],
             isValid: src.lap.isValid,
             track: src.session.trackLayout ?? src.session.track,
             car: src.session.car,
@@ -154,13 +164,17 @@ export async function analyseLaps(sources: LapSource[], referenceLapId: number, 
             brake: c.arrays.brake,
             steer: c.arrays.steer,
             gear: c.arrays.gear,
-            mapX: Float32Array.from(c.arrays.gpsLon, v => v * 111_320 * cosLat),
-            mapY: Float32Array.from(c.arrays.gpsLat, v => v * 110_540),
+            mapX,
+            mapY,
             deltaMs: i === 0 ? null : timeDelta({ stepM: STEP_M, timeMs: c.arrays.timeMs }, refTime),
             corners: c.corners.map((k): CornerInfo => ({
                 number: k.number,
                 entryM: toM(k.entryNorPos),
                 apexM: toM(k.apexNorPos),
+                lineApexM: tightestPoint(curvature,
+                    Math.max(toM(k.entryNorPos), toM(k.apexNorPos) - LINE_APEX_RANGE_M),
+                    Math.min(toM(k.exitNorPos), toM(k.apexNorPos) + LINE_APEX_RANGE_M),
+                    toM(k.apexNorPos)),
                 exitM: toM(k.exitNorPos),
                 minSpeedKmh: k.minSpeedKmh,
                 entrySpeedKmh: k.entrySpeedKmh,
@@ -174,7 +188,18 @@ export async function analyseLaps(sources: LapSource[], referenceLapId: number, 
             extra,
         })
     }
-    return { trackLengthM, referenceLapId: ordered[0]!.lap.id, laps, channels: cores[0]!.channels }
+    const setups: AnalysisResult['setups'] = {}
+    for (const s of ordered) if (!(s.session.id in setups)) setups[s.session.id] = parseSetupJson(s.setupJson ?? null)
+    return { trackLengthM, referenceLapId: ordered[0]!.lap.id, laps, setups, channels: cores[0]!.channels }
+}
+
+/** Distance of the highest path curvature between two distances; the fallback if there is none (no GPS). */
+function tightestPoint(curvature: Float32Array, fromM: number, toM: number, fallbackM: number): number {
+    let best = -1
+    for (let i = Math.max(0, Math.round(fromM / STEP_M)); i <= Math.min(curvature.length - 1, Math.round(toM / STEP_M)); i++) {
+        if (best < 0 || Math.abs(curvature[i]!) > Math.abs(curvature[best]!)) best = i
+    }
+    return best >= 0 && Math.abs(curvature[best]!) > 0 ? best * STEP_M : fallbackM
 }
 
 /** Grids are built from the same lap distance, so lengths match; guard anyway. */

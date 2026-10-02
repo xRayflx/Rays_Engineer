@@ -20,6 +20,13 @@ const THROTTLE_THRESHOLD = 0.10
 const FULL_THROTTLE = 0.95
 const STRAIGHT_G = 0.4         // exit: back on full throttle with |lateral G| below this
 const BRAKE_LOOKBACK_M = 400
+const THROTTLE_HOLD_M = 20
+/** Assumed speed-based spacing when a trace has no distance channel: metres between samples at ~10 Hz. */
+const FALLBACK_SAMPLE_M = 5
+
+function distanceBetween(lap: LapTrace, a: number, b: number): number {
+    return lap.distM ? lap.distM[b]! - lap.distM[a]! : (b - a) * FALLBACK_SAMPLE_M
+}
 
 export interface DetectedCorner {
     number: number
@@ -33,7 +40,7 @@ export interface DetectedCorner {
     exitSpeedKmh: number
     /** First brake application after the top speed before the corner (max 400 m before the apex); null if none. */
     brakePointNorPos: number | null
-    /** First throttle application after the apex; null if none. */
+    /** Throttle rising again after its lowest point in the corner; null if the corner is taken flat. */
     throttleOpenNorPos: number | null
     isLeft: boolean
 }
@@ -102,10 +109,26 @@ export function detectCorners(lap: LapTrace): DetectedCorner[] {
             const limit = lap.distM[apex]! - BRAKE_LOOKBACK_M
             while (from < apex && lap.distM[from]! < limit) from++
         }
-        for (let i = from; i <= apex; i++) if (lap.brake[i]! > BRAKE_THRESHOLD) { brake = lap.norPos[i]!; break }
+        let brakeI = -1
+        for (let i = from; i <= apex; i++) if (lap.brake[i]! > BRAKE_THRESHOLD) { brakeI = i; brake = lap.norPos[i]!; break }
 
+        // Throttle on = the first application above the corner's lowest throttle that is held off the brake for
+        // THROTTLE_HOLD_M. The driver is often back on the throttle before the slowest point (searching from the
+        // apex would just find the apex); downshift blips while braking and single spikes don't count.
         let throttle: number | null = null
-        for (let i = apex; i <= exit; i++) if (lap.throttle[i]! > THROTTLE_THRESHOLD) { throttle = lap.norPos[i]!; break }
+        const lowFrom = brakeI >= 0 ? brakeI : entry
+        let low = Infinity
+        for (let i = lowFrom; i <= exit; i++) low = Math.min(low, lap.throttle[i]!)
+        if (low < FULL_THROTTLE) {
+            const on = (i: number) => lap.throttle[i]! > low + THROTTLE_THRESHOLD && lap.brake[i]! <= BRAKE_THRESHOLD
+            for (let i = lowFrom; i <= exit && throttle === null; i++) {
+                if (!on(i)) continue
+                let j = i
+                while (j + 1 < n && on(j + 1) && distanceBetween(lap, i, j + 1) < THROTTLE_HOLD_M) j++
+                if (j + 1 < n && distanceBetween(lap, i, j + 1) >= THROTTLE_HOLD_M && on(j + 1)) throttle = lap.norPos[i]!
+                else i = j
+            }
+        }
 
         // Direction from the strongest lateral load; at the slowest point of a hairpin G is ~0.
         let peak = 0
