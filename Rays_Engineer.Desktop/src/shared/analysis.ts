@@ -38,6 +38,8 @@ export interface LapAnalysis {
     sessionId: number
     lapNumber: number
     lapTimeMs: number | null
+    /** Sector 1–3 times from LMU's own timing; null = not recorded or invalid sector. */
+    sectorMs: [number | null, number | null, number | null]
     isValid: boolean
     track: string | null
     car: string | null
