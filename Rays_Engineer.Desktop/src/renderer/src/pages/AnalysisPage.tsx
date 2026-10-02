@@ -4,16 +4,18 @@ import clsx from 'clsx'
 import { LineChart, Loader2, Plus, X, ZoomOut } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import CornerMap from '../components/analysis/CornerMap'
 import TraceChart, { type TraceSeries } from '../components/analysis/TraceChart'
 import TrackMap from '../components/analysis/TrackMap'
 import EmptyState from '../components/EmptyState'
 import { WHEELS, useAnalysisStore, type ExtraChart } from '../lib/analysisStore'
 import { channelLimit, channelUses, freeWheel } from '../lib/compare'
+import { deltaAt, matchCorner } from '../lib/corners'
 import { formatDateTime } from '../lib/format'
 import { useChartPalette } from '../lib/theme'
 import { callWorker } from '../lib/worker'
 
-type Tab = 'traces' | 'corners'
+type Tab = 'traces' | 'corners' | 'corner map'
 
 export default function AnalysisPage() {
     const lapIds = useAnalysisStore(s => s.lapIds)
@@ -65,7 +67,7 @@ export default function AnalysisPage() {
                     <h1 className="page-title text-[28px]">{result.laps[0]!.track}</h1>
                     <span className="text-[13px] text-fg-muted">{result.laps[0]!.car}</span>
                     <div role="tablist" aria-label="Analysis view" className="segmented ml-auto">
-                        {(['traces', 'corners'] as const).map(t => (
+                        {(['traces', 'corners', 'corner map'] as const).map(t => (
                             <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={clsx('segment', tab === t && 'segment-on')}>
                                 {t}
                             </button>
@@ -78,6 +80,7 @@ export default function AnalysisPage() {
             </header>
             {tab === 'traces' && <Traces result={result} colors={colors} />}
             {tab === 'corners' && <Corners result={result} colors={colors} onPick={showCorner} />}
+            {tab === 'corner map' && <CornerMap result={result} colors={colors} />}
         </div>
     )
 }
@@ -391,18 +394,6 @@ function Conditions({ laps, colors }: { laps: LapAnalysis[]; colors: string[] })
 }
 
 // ── Corners ──────────────────────────────────────────────────────────────────
-
-function matchCorner(corners: CornerInfo[], apexM: number): CornerInfo | null {
-    let best: CornerInfo | null = null
-    for (const c of corners) if (Math.abs(c.apexM - apexM) < 120 && (!best || Math.abs(c.apexM - apexM) < Math.abs(best.apexM - apexM))) best = c
-    return best
-}
-
-function deltaAt(l: LapAnalysis, m: number): number | null {
-    if (!l.deltaMs) return null
-    const i = Math.round(m / l.stepM)
-    return i >= 0 && i < l.deltaMs.length ? l.deltaMs[i]! : null
-}
 
 /** Full bar width (each side of the centre line) in ms of time gained or lost in one corner. */
 const BAR_SCALE_MS = 250
