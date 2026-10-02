@@ -33,7 +33,7 @@ interface Moment extends BalanceMoment {
 /** Where a moment happened: the reference corner around it and the phase within that corner. */
 function placeMoment(m: BalanceMoment, corners: CornerInfo[]): Moment {
     const corner = corners.find(c => m.atM >= Math.min(c.entryM, c.brakeM ?? c.entryM) - 30 && m.atM <= c.exitM + 30) ?? null
-    const phase = !corner ? null : m.atM < corner.apexM - 15 ? 'entry' : m.atM > corner.apexM + 15 ? 'exit' : 'mid'
+    const phase = !corner ? null : m.atM < corner.lineApexM - 15 ? 'entry' : m.atM > corner.lineApexM + 15 ? 'exit' : 'mid'
     return { ...m, corner, phase }
 }
 
@@ -46,7 +46,7 @@ export default function Balance({ result, colors }: { result: AnalysisResult; co
 
     const model = useMemo(() => fitSteerModel(ref), [ref])
     const traces = useMemo(() => (model ? laps.map(l => balanceTrace(l, model)) : []), [laps, model])
-    const phases = useMemo(() => traces.map((b, i) => ref.corners.map(c => cornerPhases(b, laps[i]!.stepM, c))), [traces, laps, ref])
+    const phases = useMemo(() => traces.map((b, i) => ref.corners.map(c => cornerPhases(b, laps[i]!.stepM, { ...c, apexM: c.lineApexM }))), [traces, laps, ref])
     const lap = laps[Math.min(lapIdx, laps.length - 1)]!
     const balance = traces[lapIdx]
     const moments = useMemo(() => {
@@ -145,7 +145,7 @@ function BalanceMap({ lap, balance, corners, moment }: { lap: LapAnalysis; balan
         }
         // Corner labels sit on the outside of the corner.
         const labels = corners.map(c => {
-            const i = at(c.apexM)
+            const i = at(c.lineApexM)
             const [x, y] = pt(i)
             const [ax, ay] = pt(Math.max(0, i - 2))
             const [bx, by] = pt(Math.min(n - 1, i + 2))
@@ -295,7 +295,7 @@ function BalanceOverLap({ lap, balance, refBalance, refLap, corners, moment }: {
                 {corners.map(c => (
                     <g key={c.number}>
                         <rect x={X(c.entryM)} y={14} width={Math.max(1, X(c.exitM) - X(c.entryM))} height={152} className="fill-fg/[0.03]" />
-                        <text x={X(c.apexM)} y={10} textAnchor="middle" className="fill-fg-faint">T{c.number}</text>
+                        <text x={X(c.lineApexM)} y={10} textAnchor="middle" className="fill-fg-faint">T{c.number}</text>
                     </g>
                 ))}
                 {[20, -20].map(v => (

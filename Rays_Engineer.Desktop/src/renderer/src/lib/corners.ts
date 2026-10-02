@@ -21,16 +21,20 @@ export function deltaAt(l: LapAnalysis, m: number): number | null {
     return i >= 0 && i < l.deltaMs.length ? l.deltaMs[i]! : null
 }
 
-/** One lap through one reference corner. Distances are relative to the reference apex so laps compare by track position. */
+/**
+ * One lap through one reference corner. Distances are relative to the reference
+ * lap's line apex (tightest point of its GPS line) so laps compare by track position.
+ */
 export interface CornerLapStats {
-    /** The lap's own apex (slowest point), metres from the finish line; null if the corner wasn't found in this lap. */
+    /** The lap's own line apex, metres from the finish line; null if the corner wasn't found in this lap. */
     apexM: number | null
+    /** Minimum speed in the corner. */
     apexKmh: number | null
     /** First brake application, metres before the reference apex. */
     brakeBeforeM: number | null
-    /** Highest brake pressure between the brake point and the apex, 0–1. */
+    /** Highest brake pressure between the brake point and the slowest point, 0–1. */
     peakBrake: number | null
-    /** First throttle application after the apex, metres after the reference apex (negative = before it). */
+    /** Throttle rising again after its lowest point, metres after the reference apex (negative = before it). */
     throttleAfterM: number | null
     /** Speed at the reference corner's exit point. */
     exitKmh: number | null
@@ -56,11 +60,11 @@ export function cornerLapStats(lap: LapAnalysis, ref: CornerInfo, isRef: boolean
         for (let i = indexAt(lap, c.brakeM); i <= indexAt(lap, c.apexM); i++) peakBrake = Math.max(peakBrake, lap.brake[i]!)
     }
     return {
-        apexM: c.apexM,
+        apexM: c.lineApexM,
         apexKmh: c.minSpeedKmh,
-        brakeBeforeM: c.brakeM === null ? null : ref.apexM - c.brakeM,
+        brakeBeforeM: c.brakeM === null ? null : ref.lineApexM - c.brakeM,
         peakBrake,
-        throttleAfterM: c.throttleM === null ? null : c.throttleM - ref.apexM,
+        throttleAfterM: c.throttleM === null ? null : c.throttleM - ref.lineApexM,
         exitKmh,
         timeMs,
     }
@@ -71,8 +75,8 @@ export function cornerWindow(ref: CornerInfo, stats: CornerLapStats[], lapLength
     let from = Math.min(ref.entryM, ref.brakeM ?? ref.entryM)
     let to = ref.exitM
     for (const s of stats) {
-        if (s.brakeBeforeM !== null) from = Math.min(from, ref.apexM - s.brakeBeforeM)
-        if (s.throttleAfterM !== null) to = Math.max(to, ref.apexM + s.throttleAfterM)
+        if (s.brakeBeforeM !== null) from = Math.min(from, ref.lineApexM - s.brakeBeforeM)
+        if (s.throttleAfterM !== null) to = Math.max(to, ref.lineApexM + s.throttleAfterM)
     }
     return { fromM: Math.max(0, from - 60), toM: Math.min(lapLengthM, to + 60) }
 }

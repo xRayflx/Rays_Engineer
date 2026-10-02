@@ -228,7 +228,7 @@ function CornerTrack({ rows, visible, corner, fromM, toM, markers }: {
             {ordered.map(r => <path key={r.lap.lapId} d={lineOf(r)} fill="none" stroke={r.color} strokeWidth={r.isRef ? 2.5 : 2} strokeLinejoin="round" strokeLinecap="round" />)}
             {markers.brake && ordered.map(r => {
                 if (r.stats.brakeBeforeM === null) return null
-                const [x, y] = geo.pt(r.lap, indexAt(r.lap, corner.apexM - r.stats.brakeBeforeM))
+                const [x, y] = geo.pt(r.lap, indexAt(r.lap, corner.lineApexM - r.stats.brakeBeforeM))
                 return <rect key={r.lap.lapId} x={x - 5} y={y - 5} width={10} height={10} fill={r.color} stroke={palette.markerRing} strokeWidth={2} />
             })}
             {markers.apex && ordered.map(r => {
@@ -238,7 +238,7 @@ function CornerTrack({ rows, visible, corner, fromM, toM, markers }: {
             })}
             {markers.throttle && ordered.map(r => {
                 if (r.stats.throttleAfterM === null) return null
-                return <polygon key={r.lap.lapId} points={geo.triangle(r.lap, indexAt(r.lap, corner.apexM + r.stats.throttleAfterM), 8)}
+                return <polygon key={r.lap.lapId} points={geo.triangle(r.lap, indexAt(r.lap, corner.lineApexM + r.stats.throttleAfterM), 8)}
                     fill={r.color} stroke={palette.markerRing} strokeWidth={2} strokeLinejoin="round" />
             })}
             <g className="stroke-fg-subtle" strokeWidth={2}>
@@ -271,8 +271,8 @@ function CornerChart({ rows, pick, corner, fromM, toM, height, percent = false, 
 }) {
     const PL = 36, PR = 10, PT = 8
     const plotBottom = height - (showX ? 24 : 6)
-    const x0 = fromM - corner.apexM
-    const x1 = toM - corner.apexM
+    const x0 = fromM - corner.lineApexM
+    const x1 = toM - corner.lineApexM
     const X = (x: number) => PL + (x - x0) / (x1 - x0 || 1) * (CHART_W - PL - PR)
 
     const { paths, ticks } = useMemo(() => {
@@ -283,7 +283,7 @@ function CornerChart({ rows, pick, corner, fromM, toM, height, percent = false, 
             for (let i = indexAt(r.lap, fromM); i <= indexAt(r.lap, toM); i++) {
                 const v = percent ? a[i]! * 100 : a[i]!
                 lo = Math.min(lo, v); hi = Math.max(hi, v)
-                out.push([i * r.lap.stepM - corner.apexM, v])
+                out.push([i * r.lap.stepM - corner.lineApexM, v])
             }
             return out
         })
@@ -362,7 +362,7 @@ function CornerSummary({ corner }: { corner: CornerInfo }) {
             <span className="font-display text-[36px] font-bold leading-none text-fg-strong" style={{ fontStretch: '118%' }}>T{corner.number}</span>
             <div className="flex flex-col gap-0.5">
                 <span className="text-[13px] text-fg-soft">{corner.isLeft ? 'Left' : 'Right'}</span>
-                <span className="num text-[11px] text-fg-subtle">apex at {Math.round(corner.apexM)} m</span>
+                <span className="num text-[11px] text-fg-subtle">apex at {Math.round(corner.lineApexM)} m</span>
             </div>
             <div className="ml-auto grid grid-cols-3 gap-3 text-right">
                 {stat('Entry', corner.entrySpeedKmh)}

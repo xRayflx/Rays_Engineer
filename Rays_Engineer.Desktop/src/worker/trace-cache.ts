@@ -6,7 +6,7 @@ import type { ChannelOption, LapConditions } from '../shared/analysis'
 import type { DetectedCorner } from './analysis/corners'
 
 /** Bump when the cached content or its computation changes; old rows are ignored and rebuilt. */
-export const TRACE_CACHE_VERSION = 2
+export const TRACE_CACHE_VERSION = 3
 
 export const CORE_ARRAYS = ['timeMs', 'speed', 'throttle', 'brake', 'steer', 'gear', 'gpsLat', 'gpsLon'] as const
 export type CoreArray = (typeof CORE_ARRAYS)[number]

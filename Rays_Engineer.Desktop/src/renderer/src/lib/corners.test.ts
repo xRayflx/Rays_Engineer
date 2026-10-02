@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { cornerLapStats, cornerWindow, matchCorner } from './corners'
 
 const corner = (p: Partial<CornerInfo>): CornerInfo => ({
-    number: 1, entryM: 300, apexM: 400, exitM: 500, minSpeedKmh: 90, entrySpeedKmh: 250, exitSpeedKmh: 180,
+    number: 1, entryM: 300, apexM: 400, lineApexM: 400, exitM: 500, minSpeedKmh: 90, entrySpeedKmh: 250, exitSpeedKmh: 180,
     brakeM: 280, throttleM: 420, isLeft: false, peakGLat: 2, ...p,
 })
 
@@ -31,7 +31,7 @@ describe('corner lap stats', () => {
     const ref = corner({})
 
     it('measures brake and throttle points relative to the reference apex', () => {
-        const other = corner({ apexM: 410, brakeM: 270, throttleM: 450, minSpeedKmh: 86 })
+        const other = corner({ apexM: 410, lineApexM: 395, brakeM: 270, throttleM: 450, minSpeedKmh: 86 })
         const s = cornerLapStats(lap([other], true), ref, false)
         expect(s.apexKmh).toBe(86)
         expect(s.brakeBeforeM).toBe(130)

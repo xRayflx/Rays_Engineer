@@ -41,6 +41,19 @@ describe('lap comparison on real laps', () => {
         expect(a.corners.length).toBeGreaterThanOrEqual(8)
     })
 
+    it('places throttle-on and the line apex independently of the slowest point', async () => {
+        const r = await analyseLaps([await source(RACE, 2, 31)], 31)
+        const corners = r.laps[0]!.corners
+        // The driver is usually back on the throttle before the slowest point; it must not just echo the apex.
+        const apart = corners.filter(c => c.throttleM !== null && Math.abs(c.throttleM - c.apexM) > 4)
+        expect(apart.length).toBeGreaterThan(corners.length / 2)
+        // Throttle-on comes after the brake point and near the line apex, not in the braking zone.
+        for (const c of corners) {
+            if (c.throttleM !== null && c.brakeM !== null) expect(c.throttleM).toBeGreaterThan(c.brakeM)
+            expect(Math.abs(c.lineApexM - c.apexM)).toBeLessThanOrEqual(100)
+        }
+    })
+
     it('serves repeated comparisons from the trace cache without touching the recording', async () => {
         const store = new Map<number, Uint8Array>()
         const cache: TraceCache = { get: id => store.get(id) ?? null, put: (id, d) => { store.set(id, d) } }

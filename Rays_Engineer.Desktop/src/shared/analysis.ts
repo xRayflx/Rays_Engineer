@@ -3,7 +3,10 @@
 export interface CornerInfo {
     number: number
     entryM: number
+    /** Slowest point of the corner. */
     apexM: number
+    /** Geometric apex: the tightest point of this lap's GPS line between entry and exit. */
+    lineApexM: number
     exitM: number
     minSpeedKmh: number
     entrySpeedKmh: number
